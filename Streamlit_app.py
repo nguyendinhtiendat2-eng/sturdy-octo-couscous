@@ -28,9 +28,6 @@ if "remove_after_pick" not in st.session_state:
 if "game_started" not in st.session_state:
     st.session_state.game_started = False
 
-if "sound_enabled" not in st.session_state:
-    st.session_state.sound_enabled = True
-
 if "pending_winner" not in st.session_state:
     st.session_state.pending_winner = None
 
@@ -315,7 +312,6 @@ else:
                         if (this.x > canvas.width + 40) this.x = -40;
                         if (this.x < -40) this.x = canvas.width + 40;
                     }} else {{
-                        // Bơi mượt mà chuẩn xác vào ngay vị trí lưỡi câu ở x=280, y=hookY
                         let dx = 280 - this.x;
                         let dy = hookY - this.y;
                         this.x += dx * 0.12;
@@ -327,13 +323,11 @@ else:
                     ctx.translate(this.x, this.y);
                     if (this.speed < 0 && !this.isTarget) ctx.scale(-1, 1);
                     
-                    // Thân cá
                     ctx.fillStyle = this.color;
                     ctx.beginPath();
                     ctx.ellipse(0, 0, 26, 13, 0, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Đuôi cá vẫy tự nhiên
                     ctx.beginPath();
                     let tailOffset = Math.sin(this.tailWag) * 4;
                     ctx.moveTo(-26, 0);
@@ -342,7 +336,6 @@ else:
                     ctx.closePath();
                     ctx.fill();
 
-                    // Mắt cá
                     ctx.fillStyle = '#fff';
                     ctx.beginPath();
                     ctx.arc(10, -2, 2.5, 0, Math.PI * 2);
@@ -352,7 +345,6 @@ else:
                     ctx.arc(11, -2, 1, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Tên trên thân cá
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 11px Segoe UI';
                     ctx.textAlign = 'center';
@@ -372,13 +364,11 @@ else:
             function drawScene() {{
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Bờ đất và thảm cỏ phía trên chân thực
                 ctx.fillStyle = '#3d2817';
                 ctx.fillRect(0, 0, canvas.width, 100);
                 ctx.fillStyle = '#27ae60';
                 ctx.fillRect(0, 95, canvas.width, 10);
 
-                // Bảng tên gỗ góc trái
                 ctx.fillStyle = '#d35400';
                 ctx.fillRect(25, 15, 130, 38);
                 ctx.strokeStyle = '#f39c12';
@@ -389,19 +379,17 @@ else:
                 ctx.textAlign = 'center';
                 ctx.fillText("📜 HỒ CÂU TÊN", 90, 38);
 
-                // Nhân vật người câu cá chân thực góc phải
                 ctx.fillStyle = '#2980b9';
-                ctx.fillRect(360, 55, 26, 40); // Thân áo
+                ctx.fillRect(360, 55, 26, 40);
                 ctx.fillStyle = '#f5b041';
                 ctx.beginPath();
-                ctx.arc(373, 43, 10, 0, Math.PI * 2); // Đầu
+                ctx.arc(373, 43, 10, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.fillStyle = '#f1c40f';
                 ctx.beginPath();
-                ctx.arc(373, 38, 12, Math.PI, 2 * Math.PI); // Nón
+                ctx.arc(373, 38, 12, Math.PI, 2 * Math.PI);
                 ctx.fill();
 
-                // Cần câu carbon linh hoạt
                 ctx.strokeStyle = '#7f8c8d';
                 ctx.lineWidth = 3.5;
                 ctx.beginPath();
@@ -409,7 +397,6 @@ else:
                 ctx.lineTo(280, 25);
                 ctx.stroke();
 
-                // Dây câu kéo thả mềm mại
                 ctx.strokeStyle = '#ffffff';
                 ctx.lineWidth = 1.2;
                 ctx.beginPath();
@@ -417,13 +404,11 @@ else:
                 ctx.lineTo(280, hookY);
                 ctx.stroke();
 
-                // Lưỡi câu vàng kim
                 ctx.fillStyle = '#f1c40f';
                 ctx.beginPath();
                 ctx.arc(280, hookY, 4.5, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Vẽ đàn cá bơi lội
                 poolFishes.forEach(fish => {{
                     fish.update();
                     fish.draw();
@@ -473,7 +458,6 @@ else:
                             targetFish.x = -40;
                         }}
                         
-                        // Truyền kết quả ra ngoài Streamlit an toàn
                         const url = new URL(window.location.href);
                         url.searchParams.set('winner', currentWinner);
                         window.history.replaceState({{}}, '', url);
@@ -527,4 +511,26 @@ else:
     query_params = st.query_params
     if "winner" in query_params and not st.session_state.pending_winner:
         w_name = query_params["winner"]
-        if w_name not
+        if w_name not in st.session_state.history:
+            st.session_state.pending_winner = w_name
+            st.rerun()
+
+    st.markdown("---")
+    col_c1, col_c2 = st.columns([1, 1])
+
+    with col_c1:
+        st.subheader("📜 Lịch sử câu cá")
+        if st.session_state.history:
+            for idx, item in enumerate(
+                reversed(st.session_state.history), 1
+            ):
+                st.markdown(
+                    f"**{idx}.** Trúng tên: <span style='color: #fdcb6e; font-weight: bold;'>{item}</span>",
+                    unsafe_allow_html=True,
+                )
+        else:
+            st.info("Chưa có lượt câu nào.")
+
+    with col_c2:
+        st.subheader("⚙️ Điều khiển")
+        if st.button("⬅️ Quay lại Menu & Sửa                          
